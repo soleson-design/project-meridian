@@ -84,8 +84,18 @@ const App = {
         try {
             const response = await fetch(`${CONFIG.API_URL}?action=getTasks`, {
                 method: 'GET',
-                mode: 'cors'
+                mode: 'cors',
+                credentials: 'include' // Include cookies for authentication
             });
+
+            // Check if response is ok
+            if (!response.ok) {
+                // Handle authentication/authorization errors
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('AUTH_REQUIRED');
+                }
+                throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            }
 
             const result = await response.json();
 
@@ -139,8 +149,75 @@ const App = {
             console.error('Error loading tasks:', error);
             document.getElementById('loadingState').style.display = 'none';
             document.getElementById('errorState').style.display = 'block';
-            document.getElementById('errorMessage').textContent = error.message;
+
+            // Handle different error types
+            this.displayError(error);
         }
+    },
+
+    /**
+     * Display appropriate error message based on error type
+     */
+    displayError(error) {
+        const errorContainer = document.getElementById('errorMessage');
+
+        // Check for authentication error
+        if (error.message === 'AUTH_REQUIRED') {
+            errorContainer.innerHTML = `
+                <strong>Authentication Required</strong>
+                <p>This app uses a Google Workspace Apps Script that requires authentication.</p>
+                <p><strong>To authenticate:</strong></p>
+                <ol style="text-align: left; display: inline-block; margin: 16px 0;">
+                    <li>Click the button below to open the API in a new tab</li>
+                    <li>Sign in with your Anaconda Google account</li>
+                    <li>Authorize access if prompted</li>
+                    <li>Return to this page and click "Retry"</li>
+                </ol>
+                <div style="margin-top: 16px;">
+                    <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                        Authenticate with Google
+                    </a>
+                </div>
+            `;
+            return;
+        }
+
+        // Check for network/CORS errors
+        if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+            errorContainer.innerHTML = `
+                <strong>Connection Error</strong>
+                <p>Unable to connect to the API. This could be due to:</p>
+                <ul style="text-align: left; display: inline-block; margin: 16px 0;">
+                    <li><strong>Authentication required:</strong> You may need to sign in to your Google account first</li>
+                    <li><strong>CORS configuration:</strong> The Apps Script may need to be redeployed</li>
+                    <li><strong>Network issue:</strong> Check your internet connection</li>
+                </ul>
+                <p><strong>Try this first:</strong></p>
+                <div style="margin-top: 16px;">
+                    <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                        Open API & Authenticate
+                    </a>
+                </div>
+                <p style="margin-top: 12px; font-size: 13px; color: #666;">
+                    After authenticating in the new tab, return here and click "Retry" below.
+                </p>
+            `;
+            return;
+        }
+
+        // Generic error
+        errorContainer.innerHTML = `
+            <strong>Error Loading Tasks</strong>
+            <p>${error.message}</p>
+            <p style="margin-top: 12px; font-size: 13px; color: #666;">
+                If this error persists, you may need to authenticate with Google first.
+            </p>
+            <div style="margin-top: 16px;">
+                <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                    Open API & Authenticate
+                </a>
+            </div>
+        `;
     },
 
     /**
@@ -447,8 +524,16 @@ const App = {
 
             const response = await fetch(url, {
                 method: 'GET',
-                mode: 'cors'
+                mode: 'cors',
+                credentials: 'include'
             });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Authentication required. Please refresh the page and authenticate with Google.');
+                }
+                throw new Error(`Server error: ${response.status}`);
+            }
 
             const result = await response.json();
 
@@ -461,7 +546,15 @@ const App = {
 
         } catch (error) {
             console.error('Error updating task:', error);
-            alert('Failed to update task: ' + error.message);
+
+            // Show user-friendly error
+            if (error.message.includes('Authentication required')) {
+                alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
+                window.open(`${CONFIG.API_URL}?action=getTasks`, '_blank');
+            } else {
+                alert('Failed to update task: ' + error.message);
+            }
+
             this.loadTasks(); // Reload to reset UI
         }
     },

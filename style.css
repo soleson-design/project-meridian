@@ -155,10 +155,45 @@ body {
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
 .btn-retry:hover {
     background-color: #07B542;
+}
+
+.btn-auth {
+    padding: 12px 24px;
+    background-color: #4285F4;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    margin: 8px;
+}
+
+.btn-auth:hover {
+    background-color: #3367D6;
+}
+
+.error-message {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.error-message ol,
+.error-message ul {
+    list-style-position: inside;
+}
+
+.error-message li {
+    margin: 8px 0;
+    line-height: 1.5;
 }
 
 /* ===== Tab Content ===== */
