@@ -10,7 +10,7 @@
 
 const CONFIG = {
     // Google Apps Script Web App URL (replace with your deployment URL)
-    API_URL: 'https://script.google.com/macros/s/AKfycbylqC0U6vgzUGEO0jOkE7gTdFXY9rhs_HFO8M8Hhs33_nkaNOYug3QnYFRMB1VAr64m/exec',
+    API_URL: 'https://script.google.com/macros/s/AKfycbxcKPhl-3OqqHoN-JOiRBYytpkHVeXnXwpSJqrOhRkR7AjHdOF3hYKMiKH7mXEN3aI/exec',
 
     // Refresh interval for polling data (in milliseconds)
     REFRESH_INTERVAL: 30000, // 30 seconds
