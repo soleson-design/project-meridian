@@ -33,6 +33,13 @@ const COLS = {
 };
 
 /**
+ * Handle OPTIONS requests (CORS preflight)
+ */
+function doOptions(e) {
+  return createCORSResponse({});
+}
+
+/**
  * Handle GET requests
  */
 function doGet(e) {
@@ -107,10 +114,16 @@ function handleRequest(e) {
  * Create a response with CORS headers
  */
 function createCORSResponse(data) {
-  const output = ContentService.createTextOutput(JSON.stringify(data));
+  const jsonData = JSON.stringify(data);
+  const callback = null; // Could be used for JSONP if needed
+
+  const output = ContentService.createTextOutput(jsonData);
   output.setMimeType(ContentService.MimeType.JSON);
 
-  // Add CORS headers
+  // Note: Google Apps Script doesn't allow setting custom headers directly
+  // CORS is handled automatically by Google when deployed as "Anyone"
+  // The key is to use GET requests and return JSON
+
   return output;
 }
 
