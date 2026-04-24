@@ -20,7 +20,7 @@ const App = {
      * Initialize the application
      */
     init() {
-        console.log('Project Meridian initializing...');
+        console.log('Month End Close Tracker initializing...');
 
         // Initialize period selectors
         this.initPeriodSelectors();

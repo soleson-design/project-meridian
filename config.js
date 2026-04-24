@@ -19,7 +19,7 @@ const CONFIG = {
     API_TIMEOUT: 10000, // 10 seconds
 
     // Application settings
-    APP_NAME: 'Project Meridian',
+    APP_NAME: 'Month End Close Tracker',
     APP_VERSION: '1.0.0',
 
     // Task status options

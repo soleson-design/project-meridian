@@ -1,10 +1,10 @@
-# Project Meridian
+# Month End Close Tracker
 
 Month-End Close Tracker for Finance Team
 
 ## Overview
 
-Project Meridian is a lightweight web application for tracking month-end close tasks and activities. Built with vanilla JavaScript and powered by Google Sheets as a database backend.
+Month End Close Tracker is a lightweight web application for tracking month-end close tasks and activities. Built with vanilla JavaScript and powered by Google Sheets as a database backend.
 
 ## Tech Stack
 
@@ -39,7 +39,7 @@ Project Meridian is a lightweight web application for tracking month-end close t
 
 ## Complete Setup Guide
 
-Follow these steps to deploy Project Meridian from scratch.
+Follow these steps to deploy Month End Close Tracker from scratch.
 
 ### Step 1: Google Sheets Setup
 
@@ -47,7 +47,7 @@ Follow these steps to deploy Project Meridian from scratch.
 
 1. Go to [sheets.google.com](https://sheets.google.com)
 2. Click **+ Blank** to create a new spreadsheet
-3. Name it **"Project Meridian - Month-End Close"**
+3. Name it **"Month End Close Tracker - Month-End Close"**
 
 #### 1.2 Set Up the Tasks Tab
 
@@ -118,7 +118,7 @@ GL-003	General Ledger	Journal Entries	Post month-end journal entries	Shared	1	UK
 #### 2.4 Save the Project
 
 1. Click the **save icon** (💾) or press **Ctrl+S** (Cmd+S on Mac)
-2. Name the project **"Project Meridian API"**
+2. Name the project **"Month End Close Tracker API"**
 
 #### 2.5 Deploy as Web App
 
@@ -126,7 +126,7 @@ GL-003	General Ledger	Journal Entries	Post month-end journal entries	Shared	1	UK
 2. Click the **gear icon** (⚙️) next to "Select type"
 3. Choose **Web app**
 4. Configure deployment settings:
-   - **Description**: `Project Meridian API v1`
+   - **Description**: `Month End Close Tracker API v1`
    - **Execute as**: **Me** (your Google account)
    - **Who has access**: Choose one:
      - `Only myself` – for testing
@@ -140,7 +140,7 @@ GL-003	General Ledger	Journal Entries	Post month-end journal entries	Shared	1	UK
 2. Choose your Google account
 3. You may see a warning: **"Google hasn't verified this app"**
    - Click **Advanced**
-   - Click **Go to Project Meridian API (unsafe)**
+   - Click **Go to Month End Close Tracker API (unsafe)**
 4. Click **Allow**
 
 #### 2.7 Copy the Web App URL
@@ -226,7 +226,7 @@ git init
 git add .
 
 # Commit
-git commit -m "Initial commit: Project Meridian month-end close tracker"
+git commit -m "Initial commit: Month End Close Tracker month-end close tracker"
 
 # Add remote (replace YOUR_USERNAME)
 git remote add origin https://github.com/YOUR_USERNAME/project-meridian.git

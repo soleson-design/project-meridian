@@ -1,5 +1,5 @@
 /**
- * PROJECT MERIDIAN - Google Apps Script Backend
+ * MONTH END CLOSE TRACKER - Google Apps Script Backend
  *
  * This script provides a REST API for the Month-End Close Tracker
  * backed by a Google Sheet with a "Tasks" tab.
