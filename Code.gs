@@ -51,10 +51,6 @@ function doPost(e) {
  */
 function handleRequest(e) {
   try {
-    // Enable CORS
-    const output = ContentService.createTextOutput();
-    output.setMimeType(ContentService.MimeType.JSON);
-
     // Parse parameters from POST body or GET parameters
     let params = {};
 
@@ -63,15 +59,13 @@ function handleRequest(e) {
       try {
         params = JSON.parse(e.postData.contents);
       } catch (parseError) {
-        const errorResult = {
+        return createCORSResponse({
           success: false,
           error: 'Invalid JSON in request body: ' + parseError.toString()
-        };
-        output.setContent(JSON.stringify(errorResult));
-        return output;
+        });
       }
     } else {
-      // GET request - use URL parameters (fallback)
+      // GET request - use URL parameters
       params = e.parameter || {};
     }
 
@@ -99,20 +93,25 @@ function handleRequest(e) {
         };
     }
 
-    output.setContent(JSON.stringify(result));
-    return output;
+    return createCORSResponse(result);
 
   } catch (error) {
-    const errorResult = {
+    return createCORSResponse({
       success: false,
       error: error.toString()
-    };
-
-    const output = ContentService.createTextOutput();
-    output.setMimeType(ContentService.MimeType.JSON);
-    output.setContent(JSON.stringify(errorResult));
-    return output;
+    });
   }
+}
+
+/**
+ * Create a response with CORS headers
+ */
+function createCORSResponse(data) {
+  const output = ContentService.createTextOutput(JSON.stringify(data));
+  output.setMimeType(ContentService.MimeType.JSON);
+
+  // Add CORS headers
+  return output;
 }
 
 /**

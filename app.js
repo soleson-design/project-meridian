@@ -82,16 +82,10 @@ const App = {
      */
     async loadTasks() {
         try {
-            const response = await fetch(CONFIG.API_URL, {
-                method: 'POST',
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'getTasks'
-                })
+            const url = `${CONFIG.API_URL}?action=getTasks`;
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors'
             });
 
             // Check if response is ok
@@ -526,20 +520,10 @@ const App = {
      */
     async updateTaskStatus(taskId, status, completedBy, notes) {
         try {
-            const response = await fetch(CONFIG.API_URL, {
-                method: 'POST',
-                mode: 'cors',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    action: 'updateTask',
-                    taskId: taskId,
-                    status: status,
-                    completedBy: completedBy,
-                    notes: notes
-                })
+            const url = `${CONFIG.API_URL}?action=updateTask&taskId=${encodeURIComponent(taskId)}&status=${encodeURIComponent(status)}&completedBy=${encodeURIComponent(completedBy)}&notes=${encodeURIComponent(notes)}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors'
             });
 
             if (!response.ok) {
