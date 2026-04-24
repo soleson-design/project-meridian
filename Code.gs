@@ -5,12 +5,15 @@
  * backed by a Google Sheet with a "Tasks" tab.
  *
  * Deployment: Deploy as Web App with Execute as "Me" and access for
- * "Anyone" (or appropriate setting for your organization)
+ * "Anyone" with API key authentication
  */
 
-// Configuration - Update this with your actual Sheet ID
+// Configuration - Update this with your actual Sheet ID and API Key
 const SHEET_ID = 'YOUR_SHEET_ID_HERE';
 const TASKS_SHEET_NAME = 'Tasks';
+
+// API Key for authentication - CHANGE THIS TO A SECURE VALUE
+const API_KEY = '75d169991e3b074dbf7103f05b7efc354af024c65255a95722471c6a4978841a';
 
 // Column mapping (1-indexed for Google Sheets)
 const COLS = {
@@ -52,6 +55,18 @@ function handleRequest(e) {
 
     // Parse parameters
     const params = e.parameter || {};
+
+    // Check API key authentication
+    const providedKey = params.key;
+    if (!providedKey || providedKey !== API_KEY) {
+      const errorResult = {
+        success: false,
+        error: 'Unauthorized: Invalid or missing API key'
+      };
+      output.setContent(JSON.stringify(errorResult));
+      return output;
+    }
+
     const action = params.action;
 
     // Route to appropriate handler

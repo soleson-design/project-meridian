@@ -82,7 +82,7 @@ const App = {
      */
     async loadTasks() {
         try {
-            const response = await fetch(`${CONFIG.API_URL}?action=getTasks`, {
+            const response = await fetch(`${CONFIG.API_URL}?action=getTasks&key=${encodeURIComponent(CONFIG.API_KEY)}`, {
                 method: 'GET',
                 mode: 'cors',
                 credentials: 'include' // Include cookies for authentication
@@ -174,7 +174,7 @@ const App = {
                     <li>Return to this page and click "Retry"</li>
                 </ol>
                 <div style="margin-top: 16px;">
-                    <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                    <a href="${CONFIG.API_URL}?action=getTasks&key=${encodeURIComponent(CONFIG.API_KEY)}" target="_blank" class="btn-auth">
                         Authenticate with Google
                     </a>
                 </div>
@@ -194,7 +194,7 @@ const App = {
                 </ul>
                 <p><strong>Try this first:</strong></p>
                 <div style="margin-top: 16px;">
-                    <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                    <a href="${CONFIG.API_URL}?action=getTasks&key=${encodeURIComponent(CONFIG.API_KEY)}" target="_blank" class="btn-auth">
                         Open API & Authenticate
                     </a>
                 </div>
@@ -213,7 +213,7 @@ const App = {
                 If this error persists, you may need to authenticate with Google first.
             </p>
             <div style="margin-top: 16px;">
-                <a href="${CONFIG.API_URL}?action=getTasks" target="_blank" class="btn-auth">
+                <a href="${CONFIG.API_URL}?action=getTasks&key=${encodeURIComponent(CONFIG.API_KEY)}" target="_blank" class="btn-auth">
                     Open API & Authenticate
                 </a>
             </div>
@@ -520,7 +520,7 @@ const App = {
      */
     async updateTaskStatus(taskId, status, completedBy, notes) {
         try {
-            const url = `${CONFIG.API_URL}?action=updateTask&taskId=${encodeURIComponent(taskId)}&status=${encodeURIComponent(status)}&completedBy=${encodeURIComponent(completedBy)}&notes=${encodeURIComponent(notes)}`;
+            const url = `${CONFIG.API_URL}?action=updateTask&key=${encodeURIComponent(CONFIG.API_KEY)}&taskId=${encodeURIComponent(taskId)}&status=${encodeURIComponent(status)}&completedBy=${encodeURIComponent(completedBy)}&notes=${encodeURIComponent(notes)}`;
 
             const response = await fetch(url, {
                 method: 'GET',
@@ -550,7 +550,7 @@ const App = {
             // Show user-friendly error
             if (error.message.includes('Authentication required')) {
                 alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
-                window.open(`${CONFIG.API_URL}?action=getTasks`, '_blank');
+                window.open(`${CONFIG.API_URL}?action=getTasks&key=${encodeURIComponent(CONFIG.API_KEY)}`, '_blank');
             } else {
                 alert('Failed to update task: ' + error.message);
             }
