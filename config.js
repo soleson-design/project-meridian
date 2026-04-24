@@ -12,9 +12,6 @@ const CONFIG = {
     // Google Apps Script Web App URL (replace with your deployment URL)
     API_URL: 'https://script.google.com/macros/s/AKfycbylqC0U6vgzUGEO0jOkE7gTdFXY9rhs_HFO8M8Hhs33_nkaNOYug3QnYFRMB1VAr64m/exec',
 
-    // API Key for authentication (must match the key in Code.gs)
-    API_KEY: '75d169991e3b074dbf7103f05b7efc354af024c65255a95722471c6a4978841a',
-
     // Refresh interval for polling data (in milliseconds)
     REFRESH_INTERVAL: 30000, // 30 seconds
 

@@ -90,7 +90,6 @@ const App = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    key: CONFIG.API_KEY,
                     action: 'getTasks'
                 })
             });
@@ -535,7 +534,6 @@ const App = {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    key: CONFIG.API_KEY,
                     action: 'updateTask',
                     taskId: taskId,
                     status: status,

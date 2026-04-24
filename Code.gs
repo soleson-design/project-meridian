@@ -4,16 +4,18 @@
  * This script provides a REST API for the Month-End Close Tracker
  * backed by a Google Sheet with a "Tasks" tab.
  *
- * Deployment: Deploy as Web App with Execute as "Me" and access for
- * "Anyone" with API key authentication
+ * Security Model:
+ * - Deploy as Web App with Execute as "Me" and access "Anyone"
+ * - The Google Sheet itself remains private
+ * - Only the owner can edit the Sheet directly
+ * - The app provides a controlled interface to the data
+ *
+ * Deployment: Deploy as Web App with Execute as "Me" and access for "Anyone"
  */
 
-// Configuration - Update this with your actual Sheet ID and API Key
+// Configuration
 const SHEET_ID = '1aND_gZScmiDQFZeJDZivma_Yss90V-w1qH2PPzj0eO0';
 const TASKS_SHEET_NAME = 'Tasks';
-
-// API Key for authentication - CHANGE THIS TO A SECURE VALUE
-const API_KEY = '75d169991e3b074dbf7103f05b7efc354af024c65255a95722471c6a4978841a';
 
 // Column mapping (1-indexed for Google Sheets)
 const COLS = {
@@ -55,13 +57,11 @@ function handleRequest(e) {
 
     // Parse parameters from POST body or GET parameters
     let params = {};
-    let providedKey = '';
 
     if (e.postData && e.postData.contents) {
       // POST request - parse JSON body
       try {
         params = JSON.parse(e.postData.contents);
-        providedKey = params.key;
       } catch (parseError) {
         const errorResult = {
           success: false,
@@ -73,17 +73,6 @@ function handleRequest(e) {
     } else {
       // GET request - use URL parameters (fallback)
       params = e.parameter || {};
-      providedKey = params.key;
-    }
-
-    // Check API key authentication
-    if (!providedKey || providedKey !== API_KEY) {
-      const errorResult = {
-        success: false,
-        error: 'Unauthorized: Invalid or missing API key'
-      };
-      output.setContent(JSON.stringify(errorResult));
-      return output;
     }
 
     const action = params.action;
