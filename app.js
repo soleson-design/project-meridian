@@ -679,6 +679,9 @@ const App = {
         });
         html += '</div></div>';
 
+        // BD Progress Bars
+        html += this.renderBDProgressBars(filteredTasks);
+
         // Team member cards
         html += '<div class="area-group">';
         html += '<h2 class="area-header">Team Progress</h2>';
@@ -799,6 +802,131 @@ const App = {
         if (days === 0) return 'Due today';
         if (days === 1) return '1 day';
         return `${days} days`;
+    },
+
+    /**
+     * Render BD Progress Bars section
+     */
+    renderBDProgressBars(tasks) {
+        const monthEnd = new Date(AppState.selectedYear, AppState.selectedMonth + 1, 0);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Find all unique BD values that have tasks
+        const bdSet = new Set();
+        tasks.forEach(task => {
+            if (task.businessDayDue !== null && task.businessDayDue !== undefined && task.businessDayDue !== '') {
+                bdSet.add(parseInt(task.businessDayDue));
+            }
+        });
+
+        const bds = Array.from(bdSet).sort((a, b) => a - b);
+
+        // Calculate which BDs have passed
+        const bdProgress = [];
+        bds.forEach(bd => {
+            const bdDate = this.addBusinessDays(monthEnd, bd);
+
+            // Only show if BD has passed or is today
+            if (bdDate <= today) {
+                const bdTasks = tasks.filter(t => parseInt(t.businessDayDue) === bd);
+                const completedTasks = bdTasks.filter(t => t.status === 'Complete');
+                const percent = bdTasks.length > 0 ? Math.round((completedTasks.length / bdTasks.length) * 100) : 0;
+
+                let colorClass = 'bd-green';
+                if (percent === 100) {
+                    colorClass = 'bd-green';
+                } else if (percent > 0) {
+                    colorClass = 'bd-yellow';
+                } else {
+                    colorClass = 'bd-red';
+                }
+
+                bdProgress.push({
+                    bd,
+                    total: bdTasks.length,
+                    completed: completedTasks.length,
+                    percent,
+                    colorClass
+                });
+            }
+        });
+
+        if (bdProgress.length === 0) {
+            return '';
+        }
+
+        let html = '<div class="area-group">';
+        html += '<h2 class="area-header">Business Day Progress</h2>';
+        html += '<div class="bd-progress-grid">';
+
+        bdProgress.forEach(bd => {
+            html += `
+                <div class="bd-progress-card">
+                    <div class="bd-label">BD+${bd.bd}</div>
+                    <div class="bd-stats">${bd.completed} of ${bd.total} tasks complete</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill ${bd.colorClass}" style="width: ${bd.percent}%">
+                            ${bd.percent > 10 ? bd.percent + '%' : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div></div>';
+        return html;
+    },
+
+    /**
+     * Render Overdue Tasks section
+     */
+    renderOverdueTasks(tasks) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Find all overdue tasks
+        const overdueTasks = tasks
+            .filter(task => {
+                if (task.status === 'Complete') return false;
+                if (task.businessDayDue === null || task.businessDayDue === undefined || task.businessDayDue === '') return false;
+
+                const daysUntilDue = this.calculateDaysUntilDue(task.businessDayDue);
+                return daysUntilDue !== null && daysUntilDue < 0;
+            })
+            .map(task => ({
+                ...task,
+                daysOverdue: Math.abs(this.calculateDaysUntilDue(task.businessDayDue))
+            }))
+            .sort((a, b) => b.daysOverdue - a.daysOverdue); // Most overdue first
+
+        if (overdueTasks.length === 0) {
+            return '';
+        }
+
+        let html = '<div class="area-group">';
+        html += '<h2 class="area-header overdue-header">⚠️ Overdue Tasks</h2>';
+        html += '<div class="overdue-tasks">';
+
+        overdueTasks.forEach(task => {
+            const entityColor = CONFIG.ENTITY_COLORS[task.entity] || '#999999';
+            html += `
+                <div class="overdue-task-card">
+                    <div class="overdue-task-header">
+                        <div class="overdue-task-name">${task.taskName}</div>
+                        <div class="overdue-badge">${task.daysOverdue} ${task.daysOverdue === 1 ? 'day' : 'days'} overdue</div>
+                    </div>
+                    <div class="overdue-task-details">
+                        <span class="overdue-detail"><strong>Owner:</strong> ${task.owner}</span>
+                        <span class="overdue-detail"><strong>Area:</strong> ${task.area}</span>
+                        <span class="overdue-detail"><strong>Entity:</strong> <span class="entity-badge-small" style="background-color: ${entityColor}">${task.entity}</span></span>
+                    </div>
+                </div>
+            `;
+        });
+
+        html += '</div></div>';
+        return html;
     }
 };
 

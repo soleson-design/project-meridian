@@ -761,6 +761,104 @@ body {
     font-weight: 600;
 }
 
+/* ===== BD Progress Bars ===== */
+.bd-progress-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.bd-progress-card {
+    background-color: #FFFFFF;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bd-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #000000;
+    margin-bottom: 8px;
+}
+
+.bd-stats {
+    font-size: 13px;
+    color: #666666;
+    margin-bottom: 12px;
+}
+
+.progress-bar-fill.bd-green {
+    background-color: #08CA4A;
+}
+
+.progress-bar-fill.bd-yellow {
+    background-color: #F39C12;
+}
+
+.progress-bar-fill.bd-red {
+    background-color: #E74C3C;
+}
+
+/* ===== Overdue Tasks ===== */
+.overdue-header {
+    color: #E74C3C;
+    border-bottom-color: #E74C3C;
+}
+
+.overdue-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.overdue-task-card {
+    background-color: #FFFFFF;
+    border-left: 4px solid #E74C3C;
+    padding: 16px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.overdue-task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.overdue-task-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    flex: 1;
+}
+
+.overdue-badge {
+    background-color: #E74C3C;
+    color: #FFFFFF;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+.overdue-task-details {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 13px;
+    color: #666666;
+}
+
+.overdue-detail {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* ===== Responsive Design ===== */
 @media (max-width: 768px) {
     .header {
