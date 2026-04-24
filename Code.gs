@@ -53,11 +53,30 @@ function handleRequest(e) {
     const output = ContentService.createTextOutput();
     output.setMimeType(ContentService.MimeType.JSON);
 
-    // Parse parameters
-    const params = e.parameter || {};
+    // Parse parameters from POST body or GET parameters
+    let params = {};
+    let providedKey = '';
+
+    if (e.postData && e.postData.contents) {
+      // POST request - parse JSON body
+      try {
+        params = JSON.parse(e.postData.contents);
+        providedKey = params.key;
+      } catch (parseError) {
+        const errorResult = {
+          success: false,
+          error: 'Invalid JSON in request body: ' + parseError.toString()
+        };
+        output.setContent(JSON.stringify(errorResult));
+        return output;
+      }
+    } else {
+      // GET request - use URL parameters (fallback)
+      params = e.parameter || {};
+      providedKey = params.key;
+    }
 
     // Check API key authentication
-    const providedKey = params.key;
     if (!providedKey || providedKey !== API_KEY) {
       const errorResult = {
         success: false,
