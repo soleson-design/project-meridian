@@ -52,6 +52,23 @@ const CONFIG = {
         'AGS': '#9B59B6',
         'PythonAnywhere': '#E74C3C',
         'Step Computing': '#F39C12'
+    },
+
+    // Column mapping for Google Sheets (1-indexed)
+    COLS: {
+        TASK_ID: 1,        // A
+        AREA: 2,           // B
+        TASK_NAME: 3,      // C
+        DESCRIPTION: 4,    // D
+        OWNER: 5,          // E
+        BUSINESS_DAY_DUE: 6, // F
+        ENTITY: 7,         // G
+        STATUS: 8,         // H
+        COMPLETED_BY: 9,   // I
+        COMPLETED_AT: 10,  // J
+        NOTES: 11,         // K
+        REVIEWED_BY: 12,   // L
+        REVIEWED_AT: 13    // M
     }
 };
 

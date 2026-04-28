@@ -11,7 +11,8 @@ const AppState = {
     summaryEntityFilter: 'All',
     selectedMonth: null,
     selectedYear: null,
-    pendingCompleteTask: null
+    pendingCompleteTask: null,
+    pendingReviewTask: null
 };
 
 // ===== Main App Object =====
@@ -349,14 +350,17 @@ const App = {
      */
     renderTaskCard(task) {
         const isComplete = task.status === 'Complete';
+        const isReviewed = isComplete && task.reviewedBy;
         const bdStatus = this.calculateBDStatus(task.businessDayDue);
 
-        let html = `<div class="task-card ${isComplete ? 'completed' : ''}" data-task-id="${task.taskId}">`;
+        let html = `<div class="task-card ${isComplete ? 'completed' : ''} ${isReviewed ? 'reviewed' : ''}" data-task-id="${task.taskId}">`;
 
         // Header with task name and checkmark
         html += '<div class="task-card-header">';
         html += `<div class="task-name">${task.taskName}</div>`;
-        if (isComplete) {
+        if (isReviewed) {
+            html += '<span class="task-checkmark double">✓✓</span>';
+        } else if (isComplete) {
             html += '<span class="task-checkmark">✓</span>';
         }
         html += '</div>';
@@ -390,10 +394,33 @@ const App = {
         });
         html += '</select>';
 
-        // Completion info
+        // Completion info (Prepared by)
         if (isComplete && task.completedBy) {
             const completedDate = task.completedAt ? new Date(task.completedAt).toLocaleString() : '';
-            html += `<div class="task-completion-info">Completed by ${task.completedBy}${completedDate ? ' on ' + completedDate : ''}</div>`;
+            html += `<div class="task-completion-info">Prepared by ${task.completedBy}${completedDate ? ' on ' + completedDate : ''}</div>`;
+        }
+
+        // Review section (only show if task is Complete)
+        if (isComplete) {
+            if (isReviewed) {
+                // Show reviewed info
+                const reviewedDate = task.reviewedAt ? new Date(task.reviewedAt).toLocaleString() : '';
+                html += `<div class="task-review-info reviewed">Reviewed by ${task.reviewedBy}${reviewedDate ? ' on ' + reviewedDate : ''}</div>`;
+            } else {
+                // Show review input
+                html += `
+                    <div class="task-review-section">
+                        <input type="text"
+                               class="reviewer-name-input"
+                               id="reviewer-${task.taskId}"
+                               placeholder="Enter reviewer name"
+                               onkeypress="if(event.key === 'Enter') App.signOffAsReviewer('${task.taskId}')">
+                        <button class="btn-review" onclick="App.signOffAsReviewer('${task.taskId}')">
+                            Sign off as Reviewer
+                        </button>
+                    </div>
+                `;
+            }
         }
 
         // Notes
@@ -515,6 +542,59 @@ const App = {
 
         // Reset the dropdown
         this.loadTasks();
+    },
+
+    /**
+     * Sign off as reviewer
+     */
+    async signOffAsReviewer(taskId) {
+        const reviewerInput = document.getElementById(`reviewer-${taskId}`);
+        const reviewerName = reviewerInput ? reviewerInput.value.trim() : '';
+
+        if (!reviewerName) {
+            alert('Please enter the reviewer name');
+            if (reviewerInput) reviewerInput.focus();
+            return;
+        }
+
+        try {
+            const url = `${CONFIG.API_URL}?action=reviewTask&taskId=${encodeURIComponent(taskId)}&reviewedBy=${encodeURIComponent(reviewerName)}&_=${Date.now()}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache',
+                redirect: 'follow'
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Authentication required. Please refresh the page and authenticate with Google.');
+                }
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to review task');
+            }
+
+            // Reload tasks to reflect changes
+            await this.loadTasks();
+
+        } catch (error) {
+            console.error('Error reviewing task:', error);
+
+            // Show user-friendly error
+            if (error.message.includes('Authentication required')) {
+                alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
+                window.open(CONFIG.API_URL, '_blank');
+            } else {
+                alert('Failed to review task: ' + error.message);
+            }
+
+            this.loadTasks(); // Reload to reset UI
+        }
     },
 
     /**

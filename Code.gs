@@ -29,7 +29,9 @@ const COLS = {
   STATUS: 8,         // H
   COMPLETED_BY: 9,   // I
   COMPLETED_AT: 10,  // J
-  NOTES: 11          // K
+  NOTES: 11,         // K
+  REVIEWED_BY: 12,   // L
+  REVIEWED_AT: 13    // M
 };
 
 /**
@@ -93,10 +95,14 @@ function handleRequest(e) {
         result = resetTask(params);
         break;
 
+      case 'reviewTask':
+        result = reviewTask(params);
+        break;
+
       default:
         result = {
           success: false,
-          error: 'Invalid action. Supported actions: getTasks, updateTask, resetTask'
+          error: 'Invalid action. Supported actions: getTasks, updateTask, resetTask, reviewTask'
         };
     }
 
@@ -155,7 +161,9 @@ function getTasks() {
         status: row[COLS.STATUS - 1],
         completedBy: row[COLS.COMPLETED_BY - 1],
         completedAt: row[COLS.COMPLETED_AT - 1],
-        notes: row[COLS.NOTES - 1]
+        notes: row[COLS.NOTES - 1],
+        reviewedBy: row[COLS.REVIEWED_BY - 1],
+        reviewedAt: row[COLS.REVIEWED_AT - 1]
       });
     }
 
@@ -233,7 +241,7 @@ function updateTask(params) {
     }
 
     // Return updated task data
-    const updatedRow = sheet.getRange(rowIndex, 1, 1, 11).getValues()[0];
+    const updatedRow = sheet.getRange(rowIndex, 1, 1, 13).getValues()[0];
     const updatedTask = {
       taskId: updatedRow[COLS.TASK_ID - 1],
       area: updatedRow[COLS.AREA - 1],
@@ -245,7 +253,9 @@ function updateTask(params) {
       status: updatedRow[COLS.STATUS - 1],
       completedBy: updatedRow[COLS.COMPLETED_BY - 1],
       completedAt: updatedRow[COLS.COMPLETED_AT - 1],
-      notes: updatedRow[COLS.NOTES - 1]
+      notes: updatedRow[COLS.NOTES - 1],
+      reviewedBy: updatedRow[COLS.REVIEWED_BY - 1],
+      reviewedAt: updatedRow[COLS.REVIEWED_AT - 1]
     };
 
     return {
@@ -301,9 +311,11 @@ function resetTask(params) {
     sheet.getRange(rowIndex, COLS.COMPLETED_BY).setValue('');
     sheet.getRange(rowIndex, COLS.COMPLETED_AT).setValue('');
     sheet.getRange(rowIndex, COLS.NOTES).setValue('');
+    sheet.getRange(rowIndex, COLS.REVIEWED_BY).setValue('');
+    sheet.getRange(rowIndex, COLS.REVIEWED_AT).setValue('');
 
     // Return updated task data
-    const updatedRow = sheet.getRange(rowIndex, 1, 1, 11).getValues()[0];
+    const updatedRow = sheet.getRange(rowIndex, 1, 1, 13).getValues()[0];
     const updatedTask = {
       taskId: updatedRow[COLS.TASK_ID - 1],
       area: updatedRow[COLS.AREA - 1],
@@ -315,7 +327,9 @@ function resetTask(params) {
       status: updatedRow[COLS.STATUS - 1],
       completedBy: updatedRow[COLS.COMPLETED_BY - 1],
       completedAt: updatedRow[COLS.COMPLETED_AT - 1],
-      notes: updatedRow[COLS.NOTES - 1]
+      notes: updatedRow[COLS.NOTES - 1],
+      reviewedBy: updatedRow[COLS.REVIEWED_BY - 1],
+      reviewedAt: updatedRow[COLS.REVIEWED_AT - 1]
     };
 
     return {
@@ -327,6 +341,94 @@ function resetTask(params) {
     return {
       success: false,
       error: 'Failed to reset task: ' + error.toString()
+    };
+  }
+}
+
+/**
+ * Review a task (sign off as reviewer)
+ * Params: taskId, reviewedBy
+ * Returns: { success: true, data: {...} }
+ */
+function reviewTask(params) {
+  try {
+    const taskId = params.taskId;
+    const reviewedBy = params.reviewedBy || '';
+
+    if (!taskId) {
+      return {
+        success: false,
+        error: 'taskId is required'
+      };
+    }
+
+    if (!reviewedBy) {
+      return {
+        success: false,
+        error: 'reviewedBy is required'
+      };
+    }
+
+    const sheet = openTasksSheet();
+    const data = sheet.getDataRange().getValues();
+
+    // Find the row with matching TaskID
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][COLS.TASK_ID - 1] === taskId) {
+        rowIndex = i + 1; // +1 because Sheets are 1-indexed
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      return {
+        success: false,
+        error: 'Task not found: ' + taskId
+      };
+    }
+
+    // Verify task is completed before allowing review
+    const taskStatus = data[rowIndex - 1][COLS.STATUS - 1];
+    if (taskStatus !== 'Complete') {
+      return {
+        success: false,
+        error: 'Task must be Complete before it can be reviewed'
+      };
+    }
+
+    // Update review fields
+    const timestamp = new Date().toISOString();
+    sheet.getRange(rowIndex, COLS.REVIEWED_BY).setValue(reviewedBy);
+    sheet.getRange(rowIndex, COLS.REVIEWED_AT).setValue(timestamp);
+
+    // Return updated task data
+    const updatedRow = sheet.getRange(rowIndex, 1, 1, 13).getValues()[0];
+    const updatedTask = {
+      taskId: updatedRow[COLS.TASK_ID - 1],
+      area: updatedRow[COLS.AREA - 1],
+      taskName: updatedRow[COLS.TASK_NAME - 1],
+      description: updatedRow[COLS.DESCRIPTION - 1],
+      owner: updatedRow[COLS.OWNER - 1],
+      businessDayDue: updatedRow[COLS.BUSINESS_DAY_DUE - 1],
+      entity: updatedRow[COLS.ENTITY - 1],
+      status: updatedRow[COLS.STATUS - 1],
+      completedBy: updatedRow[COLS.COMPLETED_BY - 1],
+      completedAt: updatedRow[COLS.COMPLETED_AT - 1],
+      notes: updatedRow[COLS.NOTES - 1],
+      reviewedBy: updatedRow[COLS.REVIEWED_BY - 1],
+      reviewedAt: updatedRow[COLS.REVIEWED_AT - 1]
+    };
+
+    return {
+      success: true,
+      data: updatedTask
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Failed to review task: ' + error.toString()
     };
   }
 }

@@ -424,6 +424,69 @@ body {
     margin-top: 8px;
 }
 
+.task-review-section {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #E0E0E0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.reviewer-name-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #FFFFFF;
+}
+
+.reviewer-name-input:focus {
+    outline: 2px solid #08CA4A;
+    border-color: #08CA4A;
+}
+
+.btn-review {
+    padding: 8px 16px;
+    background-color: #08CA4A;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+}
+
+.btn-review:hover {
+    background-color: #07B542;
+}
+
+.task-review-info {
+    font-size: 12px;
+    font-style: italic;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #E0E0E0;
+}
+
+.task-review-info.reviewed {
+    color: #08CA4A;
+    font-weight: 500;
+}
+
+.task-checkmark.double {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -2px;
+}
+
+.task-card.reviewed {
+    border-left: 4px solid #08CA4A;
+}
+
 .task-notes {
     font-size: 12px;
     color: #666666;
