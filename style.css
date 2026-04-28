@@ -1003,15 +1003,15 @@ body {
 }
 
 .progress-bar-fill.bd-green {
-    background-color: #08CA4A;
+    background-color: #08CA4A !important;
 }
 
 .progress-bar-fill.bd-yellow {
-    background-color: #F39C12;
+    background-color: #F39C12 !important;
 }
 
 .progress-bar-fill.bd-red {
-    background-color: #E74C3C;
+    background-color: #E74C3C !important;
 }
 
 /* ===== Overdue Tasks ===== */
