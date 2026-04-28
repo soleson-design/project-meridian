@@ -99,10 +99,14 @@ function handleRequest(e) {
         result = reviewTask(params);
         break;
 
+      case 'resetReview':
+        result = resetReview(params);
+        break;
+
       default:
         result = {
           success: false,
-          error: 'Invalid action. Supported actions: getTasks, updateTask, resetTask, reviewTask'
+          error: 'Invalid action. Supported actions: getTasks, updateTask, resetTask, reviewTask, resetReview'
         };
     }
 
@@ -273,6 +277,7 @@ function updateTask(params) {
 
 /**
  * Reset a task back to "Not Started" and clear completion fields
+ * Leaves review fields (ReviewedBy, ReviewedAt) untouched
  * Params: taskId
  * Returns: { success: true, data: {...} }
  */
@@ -306,13 +311,11 @@ function resetTask(params) {
       };
     }
 
-    // Reset fields
+    // Reset completion fields only (leave review fields untouched)
     sheet.getRange(rowIndex, COLS.STATUS).setValue('Not Started');
     sheet.getRange(rowIndex, COLS.COMPLETED_BY).setValue('');
     sheet.getRange(rowIndex, COLS.COMPLETED_AT).setValue('');
     sheet.getRange(rowIndex, COLS.NOTES).setValue('');
-    sheet.getRange(rowIndex, COLS.REVIEWED_BY).setValue('');
-    sheet.getRange(rowIndex, COLS.REVIEWED_AT).setValue('');
 
     // Return updated task data
     const updatedRow = sheet.getRange(rowIndex, 1, 1, 13).getValues()[0];
@@ -429,6 +432,77 @@ function reviewTask(params) {
     return {
       success: false,
       error: 'Failed to review task: ' + error.toString()
+    };
+  }
+}
+
+/**
+ * Reset review fields only (clear ReviewedBy and ReviewedAt)
+ * Leaves status, completion fields, and notes untouched
+ * Params: taskId
+ * Returns: { success: true, data: {...} }
+ */
+function resetReview(params) {
+  try {
+    const taskId = params.taskId;
+
+    if (!taskId) {
+      return {
+        success: false,
+        error: 'taskId is required'
+      };
+    }
+
+    const sheet = openTasksSheet();
+    const data = sheet.getDataRange().getValues();
+
+    // Find the row with matching TaskID
+    let rowIndex = -1;
+    for (let i = 1; i < data.length; i++) {
+      if (data[i][COLS.TASK_ID - 1] === taskId) {
+        rowIndex = i + 1; // +1 because Sheets are 1-indexed
+        break;
+      }
+    }
+
+    if (rowIndex === -1) {
+      return {
+        success: false,
+        error: 'Task not found: ' + taskId
+      };
+    }
+
+    // Clear review fields only
+    sheet.getRange(rowIndex, COLS.REVIEWED_BY).setValue('');
+    sheet.getRange(rowIndex, COLS.REVIEWED_AT).setValue('');
+
+    // Return updated task data
+    const updatedRow = sheet.getRange(rowIndex, 1, 1, 13).getValues()[0];
+    const updatedTask = {
+      taskId: updatedRow[COLS.TASK_ID - 1],
+      area: updatedRow[COLS.AREA - 1],
+      taskName: updatedRow[COLS.TASK_NAME - 1],
+      description: updatedRow[COLS.DESCRIPTION - 1],
+      owner: updatedRow[COLS.OWNER - 1],
+      businessDayDue: updatedRow[COLS.BUSINESS_DAY_DUE - 1],
+      entity: updatedRow[COLS.ENTITY - 1],
+      status: updatedRow[COLS.STATUS - 1],
+      completedBy: updatedRow[COLS.COMPLETED_BY - 1],
+      completedAt: updatedRow[COLS.COMPLETED_AT - 1],
+      notes: updatedRow[COLS.NOTES - 1],
+      reviewedBy: updatedRow[COLS.REVIEWED_BY - 1],
+      reviewedAt: updatedRow[COLS.REVIEWED_AT - 1]
+    };
+
+    return {
+      success: true,
+      data: updatedTask
+    };
+
+  } catch (error) {
+    return {
+      success: false,
+      error: 'Failed to reset review: ' + error.toString()
     };
   }
 }

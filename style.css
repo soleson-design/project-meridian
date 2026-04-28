@@ -400,6 +400,50 @@ body {
     color: #F39C12;
 }
 
+.btn-undo-preparation {
+    background-color: transparent;
+    border: 1px solid #CCCCCC;
+    color: #666666;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.btn-undo-preparation:hover {
+    background-color: #FFF4E5;
+    border-color: #F39C12;
+    color: #F39C12;
+}
+
+.btn-undo-review {
+    background-color: transparent;
+    border: 1px solid #CCCCCC;
+    color: #666666;
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+
+.btn-undo-review:hover {
+    background-color: #E8F8EE;
+    border-color: #08CA4A;
+    color: #08CA4A;
+}
+
 .task-description {
     font-size: 13px;
     color: #666666;
@@ -583,6 +627,43 @@ body {
     color: #666666;
 }
 
+.bd-modal-content {
+    max-width: 900px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.bd-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.bd-modal-header h3 {
+    margin: 0;
+}
+
+.btn-close-modal {
+    background-color: transparent;
+    border: none;
+    font-size: 32px;
+    color: #999999;
+    cursor: pointer;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease;
+}
+
+.btn-close-modal:hover {
+    color: #000000;
+}
+
 .completer-input {
     width: 100%;
     padding: 10px 12px;
@@ -679,6 +760,16 @@ body {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.team-card.clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.team-card.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .team-card-header {
@@ -886,6 +977,16 @@ body {
     padding: 16px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bd-progress-card.clickable {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bd-progress-card.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .bd-label {
@@ -1132,15 +1233,28 @@ body.dark-mode .task-review-section {
     color: #cccccc;
 }
 
-body.dark-mode .btn-reset {
+body.dark-mode .btn-reset,
+body.dark-mode .btn-undo-preparation {
     border-color: #444444;
     color: #cccccc;
 }
 
-body.dark-mode .btn-reset:hover {
+body.dark-mode .btn-reset:hover,
+body.dark-mode .btn-undo-preparation:hover {
     background-color: #3d3d3d;
     border-color: #F39C12;
     color: #F39C12;
+}
+
+body.dark-mode .btn-undo-review {
+    border-color: #444444;
+    color: #cccccc;
+}
+
+body.dark-mode .btn-undo-review:hover {
+    background-color: #1a3d2b;
+    border-color: #08CA4A;
+    color: #08CA4A;
 }
 
 body.dark-mode .progress-bar-container {
@@ -1232,4 +1346,12 @@ body.dark-mode .modal-content p {
 
 body.dark-mode .modal-content p {
     color: #cccccc;
+}
+
+body.dark-mode .btn-close-modal {
+    color: #999999;
+}
+
+body.dark-mode .btn-close-modal:hover {
+    color: #ffffff;
 }

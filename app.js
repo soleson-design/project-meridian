@@ -377,7 +377,8 @@ const App = {
     renderTaskCard(task) {
         const isComplete = task.status === 'Complete';
         const isReviewed = isComplete && task.reviewedBy && task.reviewedBy.trim() !== '';
-        const showReset = task.status === 'In Progress' || task.status === 'Complete';
+        const showUndoPreparation = task.status === 'In Progress' || task.status === 'Complete';
+        const showUndoReview = isReviewed;
         const bdStatus = this.calculateBDStatus(task.businessDayDue);
 
         let html = `<div class="task-card ${isComplete ? 'completed' : ''} ${isReviewed ? 'reviewed' : ''}" data-task-id="${task.taskId}">`;
@@ -391,8 +392,11 @@ const App = {
         } else if (isComplete) {
             html += '<span class="task-checkmark">✓</span>';
         }
-        if (showReset) {
-            html += `<button class="btn-reset" onclick="App.confirmResetTask('${task.taskId}')" title="Reset task">↺</button>`;
+        if (showUndoReview) {
+            html += `<button class="btn-undo-review" onclick="App.confirmUndoReview('${task.taskId}')" title="Undo review">⎌</button>`;
+        }
+        if (showUndoPreparation) {
+            html += `<button class="btn-undo-preparation" onclick="App.confirmUndoPreparation('${task.taskId}')" title="Undo preparation">↺</button>`;
         }
         html += '</div>';
         html += '</div>';
@@ -630,18 +634,18 @@ const App = {
     },
 
     /**
-     * Confirm reset task
+     * Confirm undo preparation
      */
-    confirmResetTask(taskId) {
-        if (confirm('Are you sure you want to reset this task? This will clear all progress, completion, and review information.')) {
-            this.resetTask(taskId);
+    confirmUndoPreparation(taskId) {
+        if (confirm('Are you sure you want to undo preparation? This will reset the task to "Not Started" and clear completion information.')) {
+            this.undoPreparation(taskId);
         }
     },
 
     /**
-     * Reset task to Not Started
+     * Undo preparation (reset task to Not Started)
      */
-    async resetTask(taskId) {
+    async undoPreparation(taskId) {
         try {
             const url = `${CONFIG.API_URL}?action=resetTask&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
             const response = await fetch(url, {
@@ -661,21 +665,74 @@ const App = {
             const result = await response.json();
 
             if (!result.success) {
-                throw new Error(result.error || 'Failed to reset task');
+                throw new Error(result.error || 'Failed to undo preparation');
             }
 
             // Reload tasks to reflect changes
             await this.loadTasks();
 
         } catch (error) {
-            console.error('Error resetting task:', error);
+            console.error('Error undoing preparation:', error);
 
             // Show user-friendly error
             if (error.message.includes('Authentication required')) {
                 alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
                 window.open(CONFIG.API_URL, '_blank');
             } else {
-                alert('Failed to reset task: ' + error.message);
+                alert('Failed to undo preparation: ' + error.message);
+            }
+
+            this.loadTasks(); // Reload to reset UI
+        }
+    },
+
+    /**
+     * Confirm undo review
+     */
+    confirmUndoReview(taskId) {
+        if (confirm('Are you sure you want to undo the review? This will clear the reviewer information.')) {
+            this.undoReview(taskId);
+        }
+    },
+
+    /**
+     * Undo review (clear review fields only)
+     */
+    async undoReview(taskId) {
+        try {
+            const url = `${CONFIG.API_URL}?action=resetReview&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache',
+                redirect: 'follow'
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Authentication required. Please refresh the page and authenticate with Google.');
+                }
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to undo review');
+            }
+
+            // Reload tasks to reflect changes
+            await this.loadTasks();
+
+        } catch (error) {
+            console.error('Error undoing review:', error);
+
+            // Show user-friendly error
+            if (error.message.includes('Authentication required')) {
+                alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
+                window.open(CONFIG.API_URL, '_blank');
+            } else {
+                alert('Failed to undo review: ' + error.message);
             }
 
             this.loadTasks(); // Reload to reset UI
@@ -854,7 +911,7 @@ const App = {
 
         ownerStats.forEach(owner => {
             html += `
-                <div class="team-card">
+                <div class="team-card clickable" onclick="App.switchTab('${owner.name}')">
                     <div class="team-card-header">
                         <div class="avatar">${this.getInitial(owner.name)}</div>
                         <div class="team-card-info">
@@ -1027,7 +1084,7 @@ const App = {
 
         bdProgress.forEach(bd => {
             html += `
-                <div class="bd-progress-card">
+                <div class="bd-progress-card clickable" onclick="App.showBDTasksModal(${bd.bd})">
                     <div class="bd-label">BD+${bd.bd}</div>
                     <div class="bd-stats">${bd.completed} of ${bd.total} tasks complete</div>
                     <div class="progress-bar-container">
@@ -1041,6 +1098,83 @@ const App = {
 
         html += '</div></div>';
         return html;
+    },
+
+    /**
+     * Show BD tasks modal
+     */
+    showBDTasksModal(bd) {
+        const bdTasks = AppState.tasks
+            .filter(t => parseInt(t.businessDayDue) === bd)
+            .sort((a, b) => {
+                // Sort by owner, then area
+                if (a.owner < b.owner) return -1;
+                if (a.owner > b.owner) return 1;
+                if (a.area < b.area) return -1;
+                if (a.area > b.area) return 1;
+                return 0;
+            });
+
+        let html = `
+            <div id="bdTasksModal" class="modal" style="display: flex;" onclick="if(event.target === this) App.closeBDTasksModal()">
+                <div class="modal-content bd-modal-content">
+                    <div class="bd-modal-header">
+                        <h3>Tasks for BD+${bd}</h3>
+                        <button class="btn-close-modal" onclick="App.closeBDTasksModal()">×</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="open-tasks-table">
+                            <thead>
+                                <tr>
+                                    <th>Task Name</th>
+                                    <th>Owner</th>
+                                    <th>Area</th>
+                                    <th>Entity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+        `;
+
+        bdTasks.forEach(task => {
+            const entityColor = CONFIG.ENTITY_COLORS[task.entity] || '#999999';
+            html += `
+                <tr>
+                    <td class="task-name-cell">${task.taskName}</td>
+                    <td>${task.owner || '-'}</td>
+                    <td>${task.area || '-'}</td>
+                    <td><span class="entity-badge-small" style="background-color: ${entityColor}">${task.entity || '-'}</span></td>
+                    <td><span class="status-badge status-${task.status.toLowerCase().replace(' ', '-')}">${task.status}</span></td>
+                </tr>
+            `;
+        });
+
+        html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Remove existing modal if present
+        const existingModal = document.getElementById('bdTasksModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+
+        // Append to body
+        document.body.insertAdjacentHTML('beforeend', html);
+    },
+
+    /**
+     * Close BD tasks modal
+     */
+    closeBDTasksModal() {
+        const modal = document.getElementById('bdTasksModal');
+        if (modal) {
+            modal.remove();
+        }
     },
 
     /**
