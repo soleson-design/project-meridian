@@ -1055,7 +1055,7 @@ const App = {
                 const completedTasks = bdTasks.filter(t => t.status === 'Complete');
                 const percent = bdTasks.length > 0 ? Math.round((completedTasks.length / bdTasks.length) * 100) : 0;
 
-                let colorClass = 'bd-green';
+                let colorClass;
                 if (percent === 100) {
                     colorClass = 'bd-green';
                 } else if (percent > 0) {
