@@ -23,6 +23,9 @@ const App = {
     init() {
         console.log('Month End Close Tracker initializing...');
 
+        // Initialize dark mode
+        this.initDarkMode();
+
         // Initialize period selectors
         this.initPeriodSelectors();
 
@@ -41,6 +44,29 @@ const App = {
                 this.loadTasks();
             }
         }, CONFIG.REFRESH_INTERVAL);
+    },
+
+    /**
+     * Initialize dark mode from localStorage
+     */
+    initDarkMode() {
+        const darkMode = localStorage.getItem('darkMode') === 'true';
+        if (darkMode) {
+            document.body.classList.add('dark-mode');
+            document.getElementById('darkModeToggle').textContent = '☀️';
+        }
+    },
+
+    /**
+     * Toggle dark mode
+     */
+    toggleDarkMode() {
+        const isDarkMode = document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+
+        // Update button icon
+        const toggleButton = document.getElementById('darkModeToggle');
+        toggleButton.textContent = isDarkMode ? '☀️' : '🌙';
     },
 
     /**

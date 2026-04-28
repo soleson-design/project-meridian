@@ -20,6 +20,7 @@ body {
     background-color: #F5F5F5;
     color: #000000;
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ===== Header Bar ===== */
@@ -77,6 +78,27 @@ body {
 .month-select:focus,
 .year-select:focus {
     outline: 2px solid #08CA4A;
+    border-color: #08CA4A;
+}
+
+.dark-mode-toggle {
+    background-color: transparent;
+    border: 1px solid #CCCCCC;
+    border-radius: 4px;
+    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: 12px;
+    transition: all 0.2s ease;
+}
+
+.dark-mode-toggle:hover {
+    background-color: #F5F5F5;
     border-color: #08CA4A;
 }
 
@@ -977,4 +999,237 @@ body {
         padding: 12px 16px;
         font-size: 13px;
     }
+}
+
+/* ===== Dark Mode ===== */
+body.dark-mode {
+    background-color: #1a1a1a;
+    color: #ffffff;
+}
+
+body.dark-mode .header {
+    background-color: #000000;
+    border-bottom-color: #08CA4A;
+}
+
+body.dark-mode .app-title {
+    color: #ffffff;
+}
+
+body.dark-mode .month-select,
+body.dark-mode .year-select {
+    background-color: #2d2d2d;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+body.dark-mode .dark-mode-toggle {
+    border-color: #444444;
+}
+
+body.dark-mode .dark-mode-toggle:hover {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .tab-nav {
+    background-color: #000000;
+    border-bottom-color: #333333;
+}
+
+body.dark-mode .tab {
+    color: #999999;
+}
+
+body.dark-mode .tab:hover {
+    color: #ffffff;
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .tab.active {
+    color: #08CA4A;
+}
+
+body.dark-mode .progress-section,
+body.dark-mode .entity-filter,
+body.dark-mode .task-card,
+body.dark-mode .summary-card,
+body.dark-mode .team-card,
+body.dark-mode .bd-progress-card,
+body.dark-mode .audit-log,
+body.dark-mode .modal-content {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .task-card {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+body.dark-mode .task-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode .task-card.completed {
+    background-color: #262626;
+}
+
+body.dark-mode .task-name,
+body.dark-mode .area-header,
+body.dark-mode .team-name,
+body.dark-mode .bd-label,
+body.dark-mode .overdue-task-name {
+    color: #ffffff;
+}
+
+body.dark-mode .task-card.completed .task-name {
+    color: #666666;
+}
+
+body.dark-mode .task-description,
+body.dark-mode .progress-text,
+body.dark-mode .bd-stats,
+body.dark-mode .team-progress-text {
+    color: #cccccc;
+}
+
+body.dark-mode .task-status-select,
+body.dark-mode .reviewer-name-input,
+body.dark-mode .completer-input {
+    background-color: #1a1a1a;
+    color: #ffffff;
+    border-color: #444444;
+}
+
+body.dark-mode .task-status-select:focus,
+body.dark-mode .reviewer-name-input:focus,
+body.dark-mode .completer-input:focus {
+    border-color: #08CA4A;
+}
+
+body.dark-mode .task-card.completed .task-status-select {
+    background-color: #262626;
+}
+
+body.dark-mode .entity-pill {
+    background-color: #1a1a1a;
+    border-color: #444444;
+    color: #cccccc;
+}
+
+body.dark-mode .entity-pill:hover {
+    border-color: #08CA4A;
+    color: #08CA4A;
+}
+
+body.dark-mode .entity-pill.active {
+    background-color: #08CA4A;
+    border-color: #08CA4A;
+    color: #ffffff;
+}
+
+body.dark-mode .task-notes,
+body.dark-mode .task-review-section {
+    border-top-color: #444444;
+    color: #cccccc;
+}
+
+body.dark-mode .btn-reset {
+    border-color: #444444;
+    color: #cccccc;
+}
+
+body.dark-mode .btn-reset:hover {
+    background-color: #3d3d3d;
+    border-color: #F39C12;
+    color: #F39C12;
+}
+
+body.dark-mode .progress-bar-container {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .table-container {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .open-tasks-table thead {
+    background-color: #1a1a1a;
+}
+
+body.dark-mode .open-tasks-table th {
+    color: #999999;
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .open-tasks-table td {
+    color: #ffffff;
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .open-tasks-table tbody tr:hover {
+    background-color: #333333;
+}
+
+body.dark-mode .audit-entry {
+    border-bottom-color: #444444;
+}
+
+body.dark-mode .audit-text {
+    color: #cccccc;
+}
+
+body.dark-mode .audit-text strong {
+    color: #ffffff;
+}
+
+body.dark-mode .overdue-task-card {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .overdue-task-details {
+    color: #cccccc;
+}
+
+body.dark-mode .entity-filter-label {
+    color: #999999;
+}
+
+body.dark-mode .btn-secondary {
+    background-color: #444444;
+    color: #ffffff;
+}
+
+body.dark-mode .btn-secondary:hover {
+    background-color: #555555;
+}
+
+body.dark-mode .error-message {
+    color: #ff6b6b;
+}
+
+body.dark-mode .spinner {
+    border-color: #2d2d2d;
+    border-top-color: #08CA4A;
+}
+
+body.dark-mode .loading-state,
+body.dark-mode .error-state {
+    color: #ffffff;
+}
+
+body.dark-mode .status-badge.status-not-started {
+    background-color: #3d3d3d;
+    color: #999999;
+}
+
+body.dark-mode .modal {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+body.dark-mode .modal-content h3,
+body.dark-mode .modal-content p {
+    color: #ffffff;
+}
+
+body.dark-mode .modal-content p {
+    color: #cccccc;
 }
