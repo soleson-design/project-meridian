@@ -350,7 +350,8 @@ const App = {
      */
     renderTaskCard(task) {
         const isComplete = task.status === 'Complete';
-        const isReviewed = isComplete && task.reviewedBy;
+        const isReviewed = isComplete && task.reviewedBy && task.reviewedBy.trim() !== '';
+        const showReset = task.status === 'In Progress' || task.status === 'Complete';
         const bdStatus = this.calculateBDStatus(task.businessDayDue);
 
         let html = `<div class="task-card ${isComplete ? 'completed' : ''} ${isReviewed ? 'reviewed' : ''}" data-task-id="${task.taskId}">`;
@@ -358,11 +359,16 @@ const App = {
         // Header with task name and checkmark
         html += '<div class="task-card-header">';
         html += `<div class="task-name">${task.taskName}</div>`;
+        html += '<div class="task-header-actions">';
         if (isReviewed) {
             html += '<span class="task-checkmark double">✓✓</span>';
         } else if (isComplete) {
             html += '<span class="task-checkmark">✓</span>';
         }
+        if (showReset) {
+            html += `<button class="btn-reset" onclick="App.confirmResetTask('${task.taskId}')" title="Reset task">↺</button>`;
+        }
+        html += '</div>';
         html += '</div>';
 
         // Description
@@ -387,7 +393,7 @@ const App = {
         html += '</div>';
 
         // Status dropdown
-        html += `<select class="task-status-select" onchange="App.handleStatusChange('${task.taskId}', this.value)" ${isComplete ? '' : ''}>`;
+        html += `<select class="task-status-select" onchange="App.handleStatusChange('${task.taskId}', this.value)">`;
         CONFIG.STATUSES.forEach(status => {
             const selected = status === task.status ? 'selected' : '';
             html += `<option value="${status}" ${selected}>${status}</option>`;
@@ -591,6 +597,59 @@ const App = {
                 window.open(CONFIG.API_URL, '_blank');
             } else {
                 alert('Failed to review task: ' + error.message);
+            }
+
+            this.loadTasks(); // Reload to reset UI
+        }
+    },
+
+    /**
+     * Confirm reset task
+     */
+    confirmResetTask(taskId) {
+        if (confirm('Are you sure you want to reset this task? This will clear all progress, completion, and review information.')) {
+            this.resetTask(taskId);
+        }
+    },
+
+    /**
+     * Reset task to Not Started
+     */
+    async resetTask(taskId) {
+        try {
+            const url = `${CONFIG.API_URL}?action=resetTask&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                mode: 'cors',
+                cache: 'no-cache',
+                redirect: 'follow'
+            });
+
+            if (!response.ok) {
+                if (response.status === 401 || response.status === 403) {
+                    throw new Error('Authentication required. Please refresh the page and authenticate with Google.');
+                }
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to reset task');
+            }
+
+            // Reload tasks to reflect changes
+            await this.loadTasks();
+
+        } catch (error) {
+            console.error('Error resetting task:', error);
+
+            // Show user-friendly error
+            if (error.message.includes('Authentication required')) {
+                alert(error.message + '\n\nClick OK, then authenticate by opening the API URL in a new tab.');
+                window.open(CONFIG.API_URL, '_blank');
+            } else {
+                alert('Failed to reset task: ' + error.message);
             }
 
             this.loadTasks(); // Reload to reset UI
