@@ -105,11 +105,21 @@ const App = {
     },
 
     /**
+     * Get current period string (e.g., "April-2026")
+     */
+    getCurrentPeriod() {
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${monthNames[AppState.selectedMonth]}-${AppState.selectedYear}`;
+    },
+
+    /**
      * Load tasks from Google Apps Script API
      */
     async loadTasks() {
         try {
-            const url = `${CONFIG.API_URL}?action=getTasks&_=${Date.now()}`;
+            const period = this.getCurrentPeriod();
+            const url = `${CONFIG.API_URL}?action=getTasks&period=${encodeURIComponent(period)}&_=${Date.now()}`;
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
@@ -594,7 +604,8 @@ const App = {
         }
 
         try {
-            const url = `${CONFIG.API_URL}?action=reviewTask&taskId=${encodeURIComponent(taskId)}&reviewedBy=${encodeURIComponent(reviewerName)}&_=${Date.now()}`;
+            const period = this.getCurrentPeriod();
+            const url = `${CONFIG.API_URL}?action=reviewTask&period=${encodeURIComponent(period)}&taskId=${encodeURIComponent(taskId)}&reviewedBy=${encodeURIComponent(reviewerName)}&_=${Date.now()}`;
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
@@ -647,7 +658,8 @@ const App = {
      */
     async undoPreparation(taskId) {
         try {
-            const url = `${CONFIG.API_URL}?action=resetTask&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
+            const period = this.getCurrentPeriod();
+            const url = `${CONFIG.API_URL}?action=resetTask&period=${encodeURIComponent(period)}&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
@@ -700,7 +712,8 @@ const App = {
      */
     async undoReview(taskId) {
         try {
-            const url = `${CONFIG.API_URL}?action=resetReview&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
+            const period = this.getCurrentPeriod();
+            const url = `${CONFIG.API_URL}?action=resetReview&period=${encodeURIComponent(period)}&taskId=${encodeURIComponent(taskId)}&_=${Date.now()}`;
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
@@ -744,7 +757,8 @@ const App = {
      */
     async updateTaskStatus(taskId, status, completedBy, notes) {
         try {
-            const url = `${CONFIG.API_URL}?action=updateTask&taskId=${encodeURIComponent(taskId)}&status=${encodeURIComponent(status)}&completedBy=${encodeURIComponent(completedBy)}&notes=${encodeURIComponent(notes)}&_=${Date.now()}`;
+            const period = this.getCurrentPeriod();
+            const url = `${CONFIG.API_URL}?action=updateTask&period=${encodeURIComponent(period)}&taskId=${encodeURIComponent(taskId)}&status=${encodeURIComponent(status)}&completedBy=${encodeURIComponent(completedBy)}&notes=${encodeURIComponent(notes)}&_=${Date.now()}`;
             const response = await fetch(url, {
                 method: 'GET',
                 mode: 'cors',
