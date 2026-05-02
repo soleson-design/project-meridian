@@ -74,8 +74,11 @@ const App = {
      */
     initPeriodSelectors() {
         const now = new Date();
-        AppState.selectedMonth = now.getMonth();
-        AppState.selectedYear = now.getFullYear();
+
+        // Default to PREVIOUS month (accounting close works on prior month)
+        const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        AppState.selectedMonth = previousMonth.getMonth();
+        AppState.selectedYear = previousMonth.getFullYear();
 
         // Populate year selector (current year ± 2 years)
         const yearSelect = document.getElementById('yearSelector');
@@ -83,14 +86,14 @@ const App = {
             const option = document.createElement('option');
             option.value = year;
             option.textContent = year;
-            if (year === now.getFullYear()) {
+            if (year === AppState.selectedYear) {
                 option.selected = true;
             }
             yearSelect.appendChild(option);
         }
 
-        // Set current month
-        document.getElementById('monthSelector').value = now.getMonth();
+        // Set previous month
+        document.getElementById('monthSelector').value = AppState.selectedMonth;
 
         // Add event listeners
         document.getElementById('monthSelector').addEventListener('change', (e) => {
@@ -300,6 +303,72 @@ const App = {
         } else {
             tabContent.innerHTML = this.renderOwnerTab(AppState.currentTab);
         }
+
+        // Update warning banner after rendering
+        this.updatePeriodWarningBanner();
+    },
+
+    /**
+     * Update warning banner if viewing current month
+     */
+    updatePeriodWarningBanner() {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const isCurrentMonth = (AppState.selectedMonth === currentMonth && AppState.selectedYear === currentYear);
+
+        let warningBanner = document.getElementById('periodWarningBanner');
+
+        if (isCurrentMonth) {
+            // Get previous month name
+            const previousMonth = new Date(currentYear, currentMonth - 1, 1);
+            const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                               'July', 'August', 'September', 'October', 'November', 'December'];
+            const previousMonthName = monthNames[previousMonth.getMonth()];
+            const previousYear = previousMonth.getFullYear();
+
+            if (!warningBanner) {
+                // Create banner
+                warningBanner = document.createElement('div');
+                warningBanner.id = 'periodWarningBanner';
+                warningBanner.className = 'period-warning-banner';
+
+                const periodSelector = document.querySelector('.period-selector');
+                periodSelector.parentNode.insertBefore(warningBanner, periodSelector.nextSibling);
+            }
+
+            warningBanner.innerHTML = `
+                ⚠️ You are viewing the current month. Did you mean
+                <a href="#" onclick="App.switchToPreviousMonth(); return false;" style="color: #0066cc; font-weight: bold; text-decoration: underline;">
+                    ${previousMonthName}-${previousYear}
+                </a>?
+            `;
+            warningBanner.style.display = 'block';
+        } else {
+            // Hide banner if it exists
+            if (warningBanner) {
+                warningBanner.style.display = 'none';
+            }
+        }
+    },
+
+    /**
+     * Switch to previous month (from current)
+     */
+    switchToPreviousMonth() {
+        const now = new Date();
+        const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+        AppState.selectedMonth = previousMonth.getMonth();
+        AppState.selectedYear = previousMonth.getFullYear();
+
+        // Update selectors
+        document.getElementById('monthSelector').value = AppState.selectedMonth;
+        document.getElementById('yearSelector').value = AppState.selectedYear;
+
+        // Re-render
+        this.renderCurrentTab();
     },
 
     /**

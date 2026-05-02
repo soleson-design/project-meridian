@@ -81,6 +81,44 @@ body {
     border-color: #08CA4A;
 }
 
+/* ===== Period Warning Banner ===== */
+.period-warning-banner {
+    background-color: #FFF3CD;
+    border: 1px solid #FFC107;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 12px 24px;
+    text-align: center;
+    font-size: 14px;
+    color: #856404;
+    display: none;
+}
+
+.period-warning-banner a {
+    color: #0066cc;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.period-warning-banner a:hover {
+    color: #004999;
+}
+
+/* Dark mode support for warning banner */
+body.dark-mode .period-warning-banner {
+    background-color: #665200;
+    border-color: #997A00;
+    color: #FFE69C;
+}
+
+body.dark-mode .period-warning-banner a {
+    color: #66B3FF;
+}
+
+body.dark-mode .period-warning-banner a:hover {
+    color: #99CCFF;
+}
+
 .dark-mode-toggle {
     background-color: transparent;
     border: 1px solid #CCCCCC;
