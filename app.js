@@ -1117,48 +1117,44 @@ const App = {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        // Find all unique BD values that have tasks
-        const bdSet = new Set();
-        tasks.forEach(task => {
-            if (task.businessDayDue !== null && task.businessDayDue !== undefined && task.businessDayDue !== '') {
-                bdSet.add(parseInt(task.businessDayDue));
-            }
-        });
-
-        const bds = Array.from(bdSet).sort((a, b) => a - b);
-
-        // Calculate which BDs have passed
+        // Show ALL BD buckets from BD+1 through BD+10
         const bdProgress = [];
-        bds.forEach(bd => {
+
+        for (let bd = 1; bd <= 10; bd++) {
             const bdDate = this.addBusinessDays(monthEnd, bd);
+            const hasPassed = bdDate < today; // Strictly less than (not <=) so today is considered upcoming
 
-            // Only show if BD has passed or is today
-            if (bdDate <= today) {
-                const bdTasks = tasks.filter(t => parseInt(t.businessDayDue) === bd);
-                const completedTasks = bdTasks.filter(t => t.status === 'Complete');
-                const percent = bdTasks.length > 0 ? Math.round((completedTasks.length / bdTasks.length) * 100) : 0;
+            // Get tasks for this BD bucket
+            const bdTasks = tasks.filter(t => parseInt(t.businessDayDue) === bd);
+            const completedTasks = bdTasks.filter(t => t.status === 'Complete');
+            const totalTasks = bdTasks.length;
+            const completedCount = completedTasks.length;
+            const percent = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
 
-                let colorClass;
-                if (percent === 100) {
-                    colorClass = 'bd-green';
-                } else if (percent > 0) {
-                    colorClass = 'bd-yellow';
-                } else {
-                    colorClass = 'bd-red';
-                }
-
-                bdProgress.push({
-                    bd,
-                    total: bdTasks.length,
-                    completed: completedTasks.length,
-                    percent,
-                    colorClass
-                });
+            // Color coding logic:
+            // - Green: 100% complete
+            // - Yellow: partially complete (regardless of date)
+            // - Red: 0% complete AND day has passed (overdue)
+            // - Gray: 0% complete AND day hasn't passed yet (upcoming)
+            let colorClass;
+            if (percent === 100) {
+                colorClass = 'bd-green';
+            } else if (percent > 0) {
+                colorClass = 'bd-yellow';
+            } else if (hasPassed) {
+                colorClass = 'bd-red'; // Overdue: 0% complete and day passed
+            } else {
+                colorClass = 'bd-gray'; // Upcoming: 0% complete but not yet due
             }
-        });
 
-        if (bdProgress.length === 0) {
-            return '';
+            bdProgress.push({
+                bd,
+                total: totalTasks,
+                completed: completedCount,
+                percent,
+                colorClass,
+                hasPassed
+            });
         }
 
         let html = '<div class="area-group">';
@@ -1166,8 +1162,12 @@ const App = {
         html += '<div class="bd-progress-grid">';
 
         bdProgress.forEach(bd => {
+            // Only make clickable if there are tasks in this bucket
+            const clickable = bd.total > 0 ? 'clickable' : '';
+            const onclick = bd.total > 0 ? `onclick="App.showBDTasksModal(${bd.bd})"` : '';
+
             html += `
-                <div class="bd-progress-card clickable" onclick="App.showBDTasksModal(${bd.bd})">
+                <div class="bd-progress-card ${clickable}" ${onclick}>
                     <div class="bd-label">BD+${bd.bd}</div>
                     <div class="bd-stats">${bd.completed} of ${bd.total} tasks complete</div>
                     <div class="progress-bar-container">

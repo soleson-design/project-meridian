@@ -1052,6 +1052,10 @@ body.dark-mode .period-warning-banner a:hover {
     background-color: #E74C3C !important;
 }
 
+.progress-bar-fill.bd-gray {
+    background-color: #95A5A6 !important;
+}
+
 /* ===== Overdue Tasks ===== */
 .overdue-header {
     color: #E74C3C;
